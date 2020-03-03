@@ -1,18 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-- [Egg Hatchery 🐣](#egg-hatchery-)
-  - [Redux](#redux)
-  - [How an egg works?](#how-an-egg-works)
-  - [How the redux-egg works?](#how-the-redux-egg-works)
-  - [Why are eggs better than ducks?](#why-are-eggs-better-than-ducks)
-    - [REASON 1: Combine eggs and solve dependencies](#reason-1-combine-eggs-and-solve-dependencies)
-    - [REASON 2: Thunks sucks](#reason-2-thunks-sucks)
-    - [REASON 3: They are still ducks](#reason-3-they-are-still-ducks)
-  - [More than redux](#more-than-redux)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Egg Hatchery 🐣
 
 > 🥚 Eggs are the new 🦆 ducks.
@@ -28,6 +13,22 @@ test('counter egg increments in one', () => {
   expect(getCount(store.getState())).toBe(1);
 });
 ```
+
+## Table of Content
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Redux](#redux)
+- [How an egg works?](#how-an-egg-works)
+- [How the redux-egg works?](#how-the-redux-egg-works)
+- [Why are eggs better than ducks?](#why-are-eggs-better-than-ducks)
+  - [REASON 1: Combine eggs and solve dependencies](#reason-1-combine-eggs-and-solve-dependencies)
+  - [REASON 2: Thunks sucks](#reason-2-thunks-sucks)
+  - [REASON 3: They are still ducks](#reason-3-they-are-still-ducks)
+- [More than redux](#more-than-redux)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Redux
 
