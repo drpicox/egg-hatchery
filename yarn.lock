@@ -4917,10 +4917,10 @@ jsx-ast-utils@^2.2.1, jsx-ast-utils@^2.2.3:
     array-includes "^3.0.3"
     object.assign "^4.1.0"
 
-kcd-scripts@^5.2.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/kcd-scripts/-/kcd-scripts-5.2.0.tgz#b6230fe00a579714d06bce8491dba74300d6e7a0"
-  integrity sha512-p8QxRCJs3I2NCM7Cor+iyA5maD0D86AoVIJkA+i0nHpdhSZVTljnGXcof9rKQAR0/S79JCZH/mupdD69gwXMrg==
+kcd-scripts@^5.4.0:
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/kcd-scripts/-/kcd-scripts-5.4.0.tgz#608798bb0f0fdd9699a51aec0766a03aa98ed49f"
+  integrity sha512-DHODYypeuNpmup0fy7wqkWu0oqn49HAioTTrzAQXlP1g4FYSCRlAOGivhLNJtu+AjMZs04Vbt4ReH/7q5Ry2Gw==
   dependencies:
     "@babel/cli" "^7.8.4"
     "@babel/core" "^7.8.4"
