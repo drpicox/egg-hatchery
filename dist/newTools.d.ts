@@ -1,1 +1,1 @@
-export default function newTools(): any;
+export default function newTools(): any[];

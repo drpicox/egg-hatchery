@@ -13,7 +13,7 @@ test('you can breed multiple things in a single egg', () => {
   const { farm } = hatch(animalsEggs, farmEgg);
   expect(farm).toEqual({
     chick: { type: 'chicken', days: 0 },
-    duckling: { type: 'duck', days: 0 }
+    duckling: { type: 'duck', days: 0 },
   });
 });
 
@@ -147,21 +147,9 @@ test.each`
   );
 });
 
-test(`breed breed fails if there is a cycle in breedings`, () => {
-  const egg = ({ breed }) => {
-    breed('a', ({ b }) => b);
-    breed('b', ({ a }) => a);
-  };
-
-  const breeds = hatch(egg);
-  expect(() => breeds.a).toThrow(
-    /breed cycle detected, it uses breeds that uses/
-  );
-});
-
 test(`breed fails if a breeding function tries to change its input object`, () => {
   const egg = ({ breed }) => {
-    breed('a', input => {
+    breed('a', (input) => {
       input.illegalChange = true;
     });
   };
@@ -177,7 +165,7 @@ test(`breed a hatching breed fails when hatch is finished`, () => {
 
   const { breed } = hatch(egg);
   expect(() => breed('a', () => {})).toThrow(
-    /breed a hatching breed fails when hatch is finished/
+    /cannot use tools once the egg is hatched/
   );
 });
 
@@ -189,7 +177,33 @@ test(`breed fails if a breeding function tries to create another hatching breed`
   };
 
   const breeds = hatch(egg);
-  expect(() => breeds.a).toThrow(
-    /breed a hatching breed fails when hatch is finished/
-  );
+  expect(() => breeds.a).toThrow(/cannot use tools once the egg is hatched/);
+});
+
+test('deeply receives previous breeds', () => {
+  const egg = ({ breed }) => {
+    breed('chick', () => 1);
+    breed('chick', ({ chick }) => chick + 2);
+    breed('chick', ({ chick }) => chick + 3);
+    breed('chick', ({ chick }) => chick + 4);
+  };
+
+  const { chick } = hatch(egg);
+  expect(chick).toBe(10);
+});
+
+test('once breed function finishes, breeds replaces the previous definition by the final definition', () => {
+  let previousChick, foundBreeds;
+  const egg = ({ breed }) => {
+    breed('chick', (breeds) => {
+      previousChick = breeds.chick;
+      foundBreeds = breeds;
+      return 'its a chick';
+    });
+  };
+
+  const { chick } = hatch(egg);
+  expect(previousChick).toBeUndefined();
+  expect(foundBreeds.chick).toBe('its a chick');
+  expect(chick).toBe('its a chick');
 });

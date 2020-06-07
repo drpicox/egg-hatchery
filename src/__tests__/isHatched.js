@@ -1,50 +1,66 @@
 import hatch from '../';
 
 test('isHatched is false while hatching', () => {
-  let foundIsHatched;
+  let isHatchedValue;
 
-  const anEgg = tools => {
-    foundIsHatched = tools.isHatched;
+  const anEgg = ({ isHatched }) => {
+    isHatchedValue = isHatched();
   };
   hatch(anEgg);
 
-  expect(foundIsHatched).toBe(false);
+  expect(isHatchedValue).toBe(false);
 });
 
 test('isHatched is true while breeding', () => {
-  let foundIsHatched;
+  let isHatchedValue;
 
-  const anEgg = tools => {
-    tools.breed('a', () => {
-      foundIsHatched = tools.isHatched;
+  const anEgg = ({ breed, isHatched }) => {
+    breed('a', () => {
+      isHatchedValue = isHatched();
       return 1;
     });
   };
 
   const { a } = hatch(anEgg);
   expect(a).toEqual(1);
-  expect(foundIsHatched).toBe(true);
+  expect(isHatchedValue).toBe(true);
 });
 
 test('isHatched is true after hatch', () => {
-  let foundTools;
-  const anEgg = tools => {
-    foundTools = tools;
+  let foundIsHatched;
+  const anEgg = ({ isHatched }) => {
+    foundIsHatched = isHatched;
   };
 
   hatch(anEgg);
-  expect(foundTools.isHatched).toBe(true);
+  expect(foundIsHatched()).toBe(true);
 });
 
 test('tool fails if isHatched', () => {
-  let foundTools;
-  const anEgg = tools => {
-    foundTools = tools;
+  let foundTool;
+  const anEgg = ({ tool }) => {
+    foundTool = tool;
   };
 
   hatch(anEgg);
 
-  expect(() => foundTools.tool('newTool', () => {})).toThrow(
-    /cannot define more tools once the egg is hatched/
+  expect(() => foundTool('newTool', () => {})).toThrow(
+    /cannot use tools once the egg is hatched/
+  );
+});
+
+test('custom function tools expire when the egg is hatched', () => {
+  let foundCustomTool;
+  function customToolEgg({ tool }) {
+    tool('customTool', () => true);
+  }
+  function recoverCustomToolEgg({ customTool }) {
+    foundCustomTool = customTool;
+  }
+
+  hatch(customToolEgg, recoverCustomToolEgg);
+
+  expect(() => foundCustomTool()).toThrow(
+    /cannot use tools once the egg is hatched/
   );
 });

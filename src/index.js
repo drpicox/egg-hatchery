@@ -1,4 +1,4 @@
-import breedEgg from './breedEgg';
+import newBreedEgg from './newBreedEgg';
 import newTools from './newTools';
 import normalizeEggs from './normalizeEggs';
 
@@ -15,14 +15,15 @@ function hatchEggs(eggs, tools) {
 }
 
 export default function hatch(...eggs) {
-  const tools = newTools();
+  const [tools, hatched] = newTools();
+  const [breedEgg, getBreeds] = newBreedEgg();
   const uniqueEggs = normalizeEggs(breedEgg, eggs);
 
   validateEggs(uniqueEggs);
   hatchEggs(uniqueEggs, tools);
 
-  const breeds = tools.breeds;
-  tools.tool('isHatched', true);
+  const breeds = getBreeds();
+  hatched();
 
   return breeds;
 }

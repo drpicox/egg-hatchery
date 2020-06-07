@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = hatch;
 
-var _breedEgg = _interopRequireDefault(require("./breedEgg"));
+var _newBreedEgg = _interopRequireDefault(require("./newBreedEgg"));
 
 var _newTools = _interopRequireDefault(require("./newTools"));
 
@@ -22,11 +22,12 @@ function hatchEggs(eggs, tools) {
 }
 
 function hatch(...eggs) {
-  const tools = (0, _newTools.default)();
-  const uniqueEggs = (0, _normalizeEggs.default)(_breedEgg.default, eggs);
+  const [tools, hatched] = (0, _newTools.default)();
+  const [breedEgg, getBreeds] = (0, _newBreedEgg.default)();
+  const uniqueEggs = (0, _normalizeEggs.default)(breedEgg, eggs);
   validateEggs(uniqueEggs);
   hatchEggs(uniqueEggs, tools);
-  const breeds = tools.breeds;
-  tools.tool('isHatched', true);
+  const breeds = getBreeds();
+  hatched();
   return breeds;
 }

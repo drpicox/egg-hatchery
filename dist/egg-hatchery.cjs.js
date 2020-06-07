@@ -1,69 +1,93 @@
 'use strict';
 
 var defineProperty = Object.defineProperty;
-var breedEgg = (function (tools) {
-  var tool = tools.tool;
-  var breeds = Object.create(null);
-  var frozenBreeds = Object.freeze(Object.create(breeds));
-  var factories = Object.create(null);
+var newBreedEgg = (function () {
+  var publicBreeds;
 
-  function validateBreedContext() {
-    if (tools.isHatched) throw new Error('breed a hatching breed fails when hatch is finished');
-  }
+  var getBreeds = function () {
+    return publicBreeds;
+  };
 
-  function validateBreedName(name) {
-    if (!name || typeof name !== 'string') throw new Error("invalid breed name, expected the first argument to be a non-empty string but received \"" + name + "\"");
-  }
+  return [function breedEgg(tools) {
+    var tool = tools.tool;
+    var breeds = Object.create(null);
+    var frozenBreeds = Object.freeze(Object.create(breeds));
+    var factories = Object.create(null);
 
-  function validateBreedFactory(factory) {
-    if (typeof factory !== 'function') throw new Error("invalid breed function, expected the second argument to be a function but received \"" + factory + "\"");
-  }
+    function validateBreedContext() {
+      if (tools.isHatched()) throw new Error('breed a hatching breed fails when hatch is finished');
+    }
 
-  tool('breed', function (name, factory) {
-    validateBreedContext();
-    validateBreedName(name);
-    validateBreedFactory(factory);
-    var uberFactory = factories[name];
-    var localBreeds = Object.create(breeds);
-    defineProperty(localBreeds, name, {
-      get: uberFactory
+    function validateBreedName(name) {
+      if (!name || typeof name !== 'string') throw new Error("invalid breed name, expected the first argument to be a non-empty string but received \"" + name + "\"");
+    }
+
+    function validateBreedFactory(factory) {
+      if (typeof factory !== 'function') throw new Error("invalid breed function, expected the second argument to be a function but received \"" + factory + "\"");
+    }
+
+    tool('breed', function (name, factory) {
+      validateBreedContext();
+      validateBreedName(name);
+      validateBreedFactory(factory);
+      var uberFactory = factories[name];
+
+      var breedFactory = function () {
+        if (!tools.isHatched()) throw new Error('breeds object cannot be used until eggs hatch');
+        defineProperty(breeds, name, {
+          get: uberFactory,
+          configurable: true
+        });
+        var value = factory(frozenBreeds);
+        defineProperty(breeds, name, {
+          value: value,
+          configurable: true
+        });
+        return value;
+      };
+
+      factories[name] = breedFactory;
+      defineProperty(breeds, name, {
+        get: breedFactory,
+        configurable: true
+      });
     });
-    Object.freeze(localBreeds);
-    var isComputed = false;
-    var isComputing = false;
-    var memoizedValue;
-
-    var breedFactory = function () {
-      if (!tools.isHatched) throw new Error('breeds object cannot be used until eggs hatch');
-      if (isComputed) return memoizedValue;
-      if (isComputing) throw new Error("breed cycle detected, it uses breeds that uses \"" + name + "\"");
-      isComputing = true;
-      memoizedValue = factory(localBreeds);
-      isComputed = true;
-      return memoizedValue;
-    };
-
-    factories[name] = breedFactory;
-    defineProperty(breeds, name, {
-      get: breedFactory,
-      configurable: true
-    });
-  });
-  tool('breeds', frozenBreeds);
+    publicBreeds = frozenBreeds;
+  }, getBreeds];
 });
 
 function newTools() {
   var tools = Object.create(null);
+  var isHatched = false;
+
+  var checkIsHatched = function () {
+    if (isHatched) throw new Error("invalid state exception, cannot use tools once the egg is hatched");
+  };
 
   tools.tool = function (name, value) {
     if (!name || typeof name !== 'string') throw new Error("invalid tool name, expected the first argument to be a non-empty string but received \"" + name + "\"");
-    if (tools.isHatched) throw new Error("invalid state exception, cannot define more tools once the egg is hatched");
+    checkIsHatched();
+
+    if (typeof value === 'function') {
+      var fn = value;
+
+      value = function () {
+        checkIsHatched();
+        fn.apply(void 0, arguments);
+      };
+    }
+
     tools[name] = value;
   };
 
-  tools.isHatched = false;
+  tools.isHatched = function () {
+    return isHatched;
+  };
+
   var frozenTools = Object.freeze(Object.create(tools));
-  return frozenTools;
+  return [frozenTools, function hatched() {
+    return isHatched = true;
+  }];
 }
 
 function normalizeEggs() {
@@ -96,7 +120,13 @@ function hatchEggs(eggs, tools) {
 }
 
 function hatch() {
-  var tools = newTools();
+  var _newTools = newTools(),
+      tools = _newTools[0],
+      hatched = _newTools[1];
+
+  var _newBreedEgg = newBreedEgg(),
+      breedEgg = _newBreedEgg[0],
+      getBreeds = _newBreedEgg[1];
 
   for (var _len = arguments.length, eggs = new Array(_len), _key = 0; _key < _len; _key++) {
     eggs[_key] = arguments[_key];
@@ -105,8 +135,8 @@ function hatch() {
   var uniqueEggs = normalizeEggs(breedEgg, eggs);
   validateEggs(uniqueEggs);
   hatchEggs(uniqueEggs, tools);
-  var breeds = tools.breeds;
-  tools.tool('isHatched', true);
+  var breeds = getBreeds();
+  hatched();
   return breeds;
 }
 
